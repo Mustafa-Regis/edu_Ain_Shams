@@ -4,74 +4,143 @@
   <meta charset="UTF-8">
   <title>تسجيل مواد نظام البوكليت</title>
   <style>
-    body { font-family: Tahoma; margin: 20px; background: #f7f7f7; }
-    label { display: block; margin-top: 10px; }
-    select, input { width: 300px; padding: 5px; }
-    button { padding: 8px 15px; margin-top: 10px; }
-    table { margin-top: 20px; border-collapse: collapse; width: 90%; background: #fff; }
-    th, td { border: 1px solid #ccc; padding: 6px; }
-    th { background: #eee; }
-    #registeredSubjectsTable { display: none; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f2f4f7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: #ffffff;
+      padding: 25px 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+      color: #555;
+    }
+    select, input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #message {
+      text-align: center;
+      margin-top: 15px;
+      color: green;
+    }
+    table {
+      margin-top: 20px;
+      width: 100%;
+      border-collapse: collapse;
+      background: #fafafa;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #f0f0f0;
+      color: #333;
+    }
+    #registeredSubjectsTable {
+      margin-top: 20px;
+      display: none;
+    }
   </style>
 </head>
 <body>
-  <h2>تسجيل مادة لنظام البوكليت</h2>
+  <div class="container">
+    <h2>تسجيل مادة لنظام البوكليت</h2>
 
-  <label>الإيميل الجامعي:</label>
-  <input type="email" id="email" placeholder="ex: user@edu.eg">
-  <button onclick="loadRegisteredSubjects()">تحميل المواد المسجلة</button>
+    <label>الإيميل الجامعي:</label>
+    <input type="email" id="email" placeholder="ex: user@edu.eg">
+    <button onclick="loadRegisteredSubjects()">تحميل المواد المسجلة</button>
 
-  <div id="registeredSubjectsTable">
-    <h3>المواد التي سبق تسجيلها</h3>
-    <table id="subjectsTable">
-      <thead>
-        <tr>
-          <th>الفرقة</th>
-          <th>القسم</th>
-          <th>الشعبة</th>
-          <th>المادة</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div id="registeredSubjectsTable">
+      <h3 style="text-align:center;">المواد المسجلة مسبقًا</h3>
+      <table id="subjectsTable">
+        <thead>
+          <tr>
+            <th>الفرقة</th>
+            <th>القسم</th>
+            <th>الشعبة</th>
+            <th>المادة</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <label>اسم الدكتور:</label>
+    <input type="text" id="doctor">
+
+    <label>الفرقة:</label>
+    <select id="year" onchange="loadSubjects()">
+      <option value="">اختر الفرقة</option>
+      <option value="الفرقة الأولى">الفرقة الأولى</option>
+      <option value="الفرقة الثانية">الفرقة الثانية</option>
+      <option value="الفرقة الثالثة">الفرقة الثالثة</option>
+      <option value="الفرقة الرابعة">الفرقة الرابعة</option>
+    </select>
+
+    <label>القسم:</label>
+    <select id="dept" onchange="loadSubjects()">
+      <option value="">اختر القسم</option>
+      <option value="عام">عام</option>
+      <option value="خاص">خاص</option>
+      <option value="انتساب">انتساب</option>
+    </select>
+
+    <label>الشعبة:</label>
+    <select id="group" onchange="loadSubjects()">
+      <option value="">اختر الشعبة</option>
+      <option value="لغة عربية">لغة عربية</option>
+      <option value="لغة انجليزية">لغة انجليزية</option>
+      <!-- أضف الشعب الأخرى لو عاوز -->
+    </select>
+
+    <label>المادة:</label>
+    <select id="subject">
+      <option value="">اختر المادة</option>
+    </select>
+
+    <button onclick="submitForm()">تسجيل المادة</button>
+
+    <div id="message"></div>
   </div>
-
-  <label>اسم الدكتور:</label>
-  <input type="text" id="doctor">
-
-  <label>الفرقة:</label>
-  <select id="year" onchange="loadSubjects()">
-    <option value="">اختر الفرقة</option>
-    <option value="الفرقة الأولى">الفرقة الأولى</option>
-    <option value="الفرقة الثانية">الفرقة الثانية</option>
-    <option value="الفرقة الثالثة">الفرقة الثالثة</option>
-    <option value="الفرقة الرابعة">الفرقة الرابعة</option>
-  </select>
-
-  <label>القسم:</label>
-  <select id="dept" onchange="loadSubjects()">
-    <option value="">اختر القسم</option>
-    <option value="عام">عام</option>
-    <option value="خاص">خاص</option>
-    <option value="انتساب">انتساب</option>
-  </select>
-
-  <label>الشعبة:</label>
-  <select id="group" onchange="loadSubjects()">
-    <option value="">اختر الشعبة</option>
-    <option value="لغة عربية">لغة عربية</option>
-    <option value="لغة انجليزية">لغة انجليزية</option>
-    <!-- أضف باقي الشعب حسب الحاجة -->
-  </select>
-
-  <label>المادة:</label>
-  <select id="subject">
-    <option value="">اختر المادة</option>
-  </select>
-
-  <button onclick="submitForm()">تسجيل المادة</button>
-
-  <div id="message" style="margin-top:15px; color:green;"></div>
 
   <script>
     const scriptURL = "YOUR_SCRIPT_URL_HERE";
@@ -159,7 +228,7 @@
         .then(text => {
           document.getElementById("message").textContent = text;
           if (text.includes("✅")) {
-            loadRegisteredSubjects(); // لتحديث القائمة بعد التسجيل
+            loadRegisteredSubjects(); // تحديث الجدول بعد التسجيل
           }
         })
         .catch(error => {
