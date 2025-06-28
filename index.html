@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تسجيل مواد نظام البوكليت</title>
+  <style>
+    body { font-family: Tahoma; margin: 20px; background: #f7f7f7; }
+    label { display: block; margin-top: 10px; }
+    select, input { width: 300px; padding: 5px; }
+    button { padding: 8px 15px; margin-top: 10px; }
+    table { margin-top: 20px; border-collapse: collapse; width: 90%; background: #fff; }
+    th, td { border: 1px solid #ccc; padding: 6px; }
+    th { background: #eee; }
+    #registeredSubjectsTable { display: none; }
+  </style>
+</head>
+<body>
+  <h2>تسجيل مادة لنظام البوكليت</h2>
+
+  <label>الإيميل الجامعي:</label>
+  <input type="email" id="email" placeholder="ex: user@edu.eg">
+  <button onclick="loadRegisteredSubjects()">تحميل المواد المسجلة</button>
+
+  <div id="registeredSubjectsTable">
+    <h3>المواد التي سبق تسجيلها</h3>
+    <table id="subjectsTable">
+      <thead>
+        <tr>
+          <th>الفرقة</th>
+          <th>القسم</th>
+          <th>الشعبة</th>
+          <th>المادة</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <label>اسم الدكتور:</label>
+  <input type="text" id="doctor">
+
+  <label>الفرقة:</label>
+  <select id="year" onchange="loadSubjects()">
+    <option value="">اختر الفرقة</option>
+    <option value="الفرقة الأولى">الفرقة الأولى</option>
+    <option value="الفرقة الثانية">الفرقة الثانية</option>
+    <option value="الفرقة الثالثة">الفرقة الثالثة</option>
+    <option value="الفرقة الرابعة">الفرقة الرابعة</option>
+  </select>
+
+  <label>القسم:</label>
+  <select id="dept" onchange="loadSubjects()">
+    <option value="">اختر القسم</option>
+    <option value="عام">عام</option>
+    <option value="خاص">خاص</option>
+    <option value="انتساب">انتساب</option>
+  </select>
+
+  <label>الشعبة:</label>
+  <select id="group" onchange="loadSubjects()">
+    <option value="">اختر الشعبة</option>
+    <option value="لغة عربية">لغة عربية</option>
+    <option value="لغة انجليزية">لغة انجليزية</option>
+    <!-- أضف باقي الشعب حسب الحاجة -->
+  </select>
+
+  <label>المادة:</label>
+  <select id="subject">
+    <option value="">اختر المادة</option>
+  </select>
+
+  <button onclick="submitForm()">تسجيل المادة</button>
+
+  <div id="message" style="margin-top:15px; color:green;"></div>
+
+  <script>
+    const scriptURL = "YOUR_SCRIPT_URL_HERE";
+
+    function loadRegisteredSubjects() {
+      const email = document.getElementById("email").value.trim();
+      if (!email.endsWith("@edu.eg")) {
+        alert("يجب أن يكون الإيميل ينتهي بـ @edu.eg");
+        return;
+      }
+      fetch(`${scriptURL}?email=${encodeURIComponent(email)}`)
+        .then(response => response.json())
+        .then(data => {
+          const tbody = document.querySelector("#subjectsTable tbody");
+          tbody.innerHTML = "";
+          if (data.length === 0) {
+            document.getElementById("registeredSubjectsTable").style.display = "none";
+            alert("لم يتم تسجيل مواد لهذا الإيميل.");
+            return;
+          }
+          data.forEach(item => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${item.year}</td>
+              <td>${item.dept}</td>
+              <td>${item.group}</td>
+              <td>${item.subject}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+          document.getElementById("registeredSubjectsTable").style.display = "block";
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("حدث خطأ أثناء تحميل المواد.");
+        });
+    }
+
+    function loadSubjects() {
+      const year = document.getElementById("year").value;
+      const dept = document.getElementById("dept").value;
+      const group = document.getElementById("group").value;
+      const subjectSelect = document.getElementById("subject");
+
+      if (!year || !dept || !group) {
+        subjectSelect.innerHTML = `<option value="">اختر المادة</option>`;
+        return;
+      }
+
+      fetch(`${scriptURL}?year=${encodeURIComponent(year)}&dept=${encodeURIComponent(dept)}&group=${encodeURIComponent(group)}`)
+        .then(response => response.json())
+        .then(data => {
+          subjectSelect.innerHTML = `<option value="">اختر المادة</option>`;
+          data.forEach(sub => {
+            const option = document.createElement("option");
+            option.value = sub;
+            option.textContent = sub;
+            subjectSelect.appendChild(option);
+          });
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("حدث خطأ أثناء تحميل المواد.");
+        });
+    }
+
+    function submitForm() {
+      const email = document.getElementById("email").value.trim();
+      const doctor = document.getElementById("doctor").value.trim();
+      const year = document.getElementById("year").value;
+      const dept = document.getElementById("dept").value;
+      const group = document.getElementById("group").value;
+      const subject = document.getElementById("subject").value;
+
+      if (!email || !doctor || !year || !dept || !group || !subject) {
+        alert("يرجى ملء جميع الحقول.");
+        return;
+      }
+
+      fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify({ email, doctor, year, dept, group, subject })
+      })
+        .then(response => response.text())
+        .then(text => {
+          document.getElementById("message").textContent = text;
+          if (text.includes("✅")) {
+            loadRegisteredSubjects(); // لتحديث القائمة بعد التسجيل
+          }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("حدث خطأ أثناء تسجيل المادة.");
+        });
+    }
+  </script>
+</body>
+</html>
